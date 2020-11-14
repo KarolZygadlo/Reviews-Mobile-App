@@ -1,30 +1,89 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
-import { globalStyles } from '../assets/styles/styles';
-import Card from '../shared/card';
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
+import { FlatList } from "react-native-gesture-handler";
+import { globalStyles } from "../assets/styles/styles";
+import Card from "../shared/card";
+import { MaterialIcons } from "@expo/vector-icons";
+import ReviewForm from "./reviewForm";
 
 export default function Home({ navigation }) {
+  const [modalOpen, setModalOpen] = useState(false);
 
-    const [reviews, setReviews] = useState([
-        { title: 'Zelda, Breath of Fresh Air', rating: 5, body: 'lorem ipsum', key: '1' },
-        { title: 'Gotta Catch Them All (again)', rating: 4, body: 'lorem ipsum', key: '2' },
-        { title: 'Not So "Final" Fantasy', rating: 3, body: 'lorem ipsum', key: '3' },
-    ]);
+  const [reviews, setReviews] = useState([
+    {
+      title: "Zelda, Breath of Fresh Air",
+      rating: 5,
+      body: "lorem ipsum",
+      key: "1",
+    },
+    {
+      title: "Gotta Catch Them All (again)",
+      rating: 4,
+      body: "lorem ipsum",
+      key: "2",
+    },
+    {
+      title: 'Not So "Final" Fantasy',
+      rating: 3,
+      body: "lorem ipsum",
+      key: "3",
+    },
+  ]);
 
-    return(
-        <View style={globalStyles.container}>
-            <FlatList
-                data={reviews}
-                renderItem={ ({ item }) => (
-                    <TouchableOpacity onPress={() => navigation.navigate('ReviewDetails', item)}>
-                        <Card>
-                        <Text style={globalStyles.titleText}>{ item.title }</Text>
-                        </Card>
-                    </TouchableOpacity>
-                )}
+  const addReview = (review) => {
+    review.key = Math.random().toString();
+    setReviews((currentReviews) => {
+      return [review, ...currentReviews];
+    });
+    setModalOpen(false);
+  };
+
+  return (
+    <View style={globalStyles.container}>
+      <Modal visible={modalOpen} animationType="slide">
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={globalStyles.modalContent}>
+            <MaterialIcons
+              name="close"
+              size={24}
+              style={{
+                ...globalStyles.modalToogle,
+                ...globalStyles.modalClose,
+              }}
+              onPress={() => setModalOpen(false)}
             />
-        </View>
-    )
+            <ReviewForm addReview={addReview} />
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      <MaterialIcons
+        name="add"
+        size={24}
+        style={globalStyles.modalToogle}
+        onPress={() => setModalOpen(true)}
+      />
+
+      <FlatList
+        data={reviews}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ReviewDetails", item)}
+          >
+            <Card>
+              <Text style={globalStyles.titleText}>{item.title}</Text>
+            </Card>
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+  );
 }
